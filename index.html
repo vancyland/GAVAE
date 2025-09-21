@@ -3,235 +3,150 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>World-Consistent Evaluation & Data</title>
-
+  <title>From Unified Image Model to World Model</title>
   <style>
     :root{
-      --bg:#0b0c10;
-      --bg-2:#0f1117;
-      --text:#e9eef7;
-      --muted:#a9b4c4;
-      --accent:#7ab7ff;
-      --border:#232836;
+      --bg:#ffffff; --ink:#0b1220; --muted:#4a5568; --accent:#1a73e8; --line:#e6e8ee;
     }
     *{box-sizing:border-box}
-    html,body{
-      margin:0; padding:0; height:100%;
-      background:var(--bg); color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Inter,Roboto,Helvetica,Arial,sans-serif;
-    }
+    html,body{margin:0; padding:0; height:100%; background:var(--bg); color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Inter,Roboto,Helvetica,Arial,sans-serif;}
 
-    /* Full-bleed layout */
-    .full-bleed{
-      width:100%;
-    }
+    /* Full-bleed hero on white */
     .hero{
-      width:100%; min-height:48vh; padding:6vh 6vw;
+      width:100%; min-height:44vh; padding:8vh 6vw 6vh;
       background:
-        radial-gradient(1200px 600px at 20% -10%, rgba(122,183,255,.18), transparent 60%),
-        radial-gradient(1200px 600px at 80% 110%, rgba(155,255,208,.12), transparent 60%);
+        radial-gradient(1200px 600px at 15% -15%, rgba(26,115,232,.08), transparent 60%),
+        radial-gradient(1200px 600px at 85% 115%, rgba(26,115,232,.06), transparent 60%);
       display:flex; flex-direction:column; justify-content:flex-end;
+      border-bottom:1px solid var(--line);
     }
-    .hero h1{
-      font-size:clamp(28px,4.2vw,54px);
-      margin:0 0 .4rem 0; line-height:1.15; letter-spacing:.2px;
-    }
-    .hero p{
-      margin:.2rem 0; color:var(--muted);
-      font-size:clamp(14px,1.35vw,18px)
-    }
+    .kicker{ color:#255ec5; font-weight:600; letter-spacing:.4px; text-transform:uppercase; font-size:12px; }
+    .hero h1{ margin:.4rem 0 .4rem 0; line-height:1.06; letter-spacing:.2px; font-size:clamp(30px,4.4vw,56px); }
+    .lead{ color:#1f2937; margin:.4rem 0 0; font-size:clamp(14px,1.25vw,18px); max-width:1200px }
 
-    /* Section header bar */
+    /* Section header */
     .bar{
-      display:flex; align-items:baseline; justify-content:space-between;
-      padding:2.2vh 6vw 1.2vh; border-top:1px solid var(--border);
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+      padding:2.0vh 6vw 1.0vh; border-top:1px solid var(--line); background:#fff;
+      position:sticky; top:0; z-index:5;
     }
-    .bar h2{
-      margin:0; font-size:clamp(18px,2vw,26px); font-weight:700;
-    }
-    .pill{
-      font-size:12px; letter-spacing:.35px; text-transform:uppercase;
-      color:#cfe2ff; border:1px solid var(--border); border-radius:999px; padding:6px 10px;
-      background:rgba(122,183,255,.08)
-    }
+    .bar h2{margin:0; font-size:clamp(18px,2.2vw,28px); font-weight:800}
+    .pill{font-size:12px; letter-spacing:.35px; text-transform:uppercase; color:#255ec5; border:1px solid var(--line);
+      border-radius:999px; padding:6px 10px; background:#f4f7ff}
 
-    /* Full-screen carousels */
-    .stage{
-      position:relative;
-      width:100%;
-      height:64vh; /* big and immersive */
-      min-height:360px;
-      background:var(--bg-2);
-      border-top:1px solid var(--border);
-      border-bottom:1px solid var(--border);
-      overflow:hidden;
-    }
-    @media (min-height:900px){
-      .stage{ height:68vh; }
-    }
+    /* Paragraph blocks */
+    .copy{padding:0 6vw 2.2vh; color:var(--muted); font-size:clamp(13px,1.1vw,17px); max-width:1600px}
+    .copy strong{color:#111827}
 
-    .track{
-      display:flex; width:100%; height:100%;
-      will-change:transform;
-    }
-    .frame{
-      position:relative; min-width:100%; height:100%;
-      display:flex; align-items:center; justify-content:center;
-      background:linear-gradient(180deg,#0a0c12,#0a0c12 40%,#0f1117);
-    }
-    /* Single image slide fills area with contain to avoid crop */
-    .frame img{
-      width:100%; height:100%; object-fit:contain; display:block;
-      transform:translateZ(0);
-      image-rendering:auto;
-    }
+    /* Full-width auto-play stage (white page, framed area) */
+    .stage{position:relative; width:100%; height:66vh; min-height:360px; background:#fafbff;
+      border-top:1px solid var(--line); border-bottom:1px solid var(--line); overflow:hidden;}
+    @media (min-height:900px){ .stage{ height:70vh; } }
 
-    /* Auto-play controls (bottom overlay) */
+    .track{display:flex; width:100%; height:100%; will-change:transform;}
+    .frame{position:relative; min-width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#ffffff;}
+    .frame img{width:100%; height:100%; object-fit:contain; display:block; transform:translateZ(0); image-rendering:auto;}
+
+    /* Minimal HUD (no verbose captions) */
     .hud{
-      position:absolute; left:0; right:0; bottom:0;
-      display:flex; align-items:center; justify-content:space-between;
-      padding:10px 14px; gap:12px;
-      background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.35));
-      color:#e5edff;
-    }
-    .caption{
-      font-size:14px; color:#d4def0; text-shadow:0 1px 2px rgba(0,0,0,.4);
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:65vw;
+      position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center;
+      padding:8px 14px; background:linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.85));
     }
     .dots{display:flex; gap:8px; align-items:center}
-    .dot{
-      width:8px; height:8px; border-radius:50%;
-      background:#4b5261; border:1px solid #2b2f3a; opacity:.9;
-    }
-    .dot.active{ background:var(--accent); box-shadow:0 0 0 4px rgba(122,183,255,.18) }
+    .dot{width:8px; height:8px; border-radius:50%; background:#d2d7e2; border:1px solid #c6cada}
+    .dot.active{ background:var(--accent); box-shadow:0 0 0 4px rgba(26,115,232,.18) }
 
-    /* Controls (optional hover) */
-    .ctrl{
-      position:absolute; top:50%; transform:translateY(-50%);
-      width:44px; height:44px; border-radius:50%;
-      border:1px solid var(--border);
-      background:rgba(20,24,33,.35); color:#e8f0ff;
-      display:flex; align-items:center; justify-content:center;
-      opacity:0; pointer-events:none; transition:.25s;
-      backdrop-filter:blur(6px);
-    }
-    .stage:hover .ctrl{ opacity:1; pointer-events:auto }
-    .ctrl.left{ left:14px }
-    .ctrl.right{ right:14px }
-    .ctrl:hover{ background:rgba(20,24,33,.6) }
+    /* Optional hover controls */
+    .ctrl{position:absolute; top:50%; transform:translateY(-50%);
+      width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:rgba(255,255,255,.7);
+      color:#1f2937; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:.25s; backdrop-filter:blur(6px);}
+    .stage:hover .ctrl{opacity:1; pointer-events:auto}
+    .ctrl.left{left:14px} .ctrl.right{right:14px}
+    .ctrl:hover{background:#ffffff}
 
-    /* Notes */
-    .note{
-      padding:10px 6vw 34px; color:var(--muted); font-size:13px;
-    }
-
-    /* Footer spacing */
     .spacer{height:6vh}
   </style>
 </head>
 <body>
 
   <!-- HERO -->
-  <section class="hero full-bleed">
-    <h1>World-Consistent Evaluation & Data</h1>
-    <p>动机：传统评测偏外观相似，难以衡量空间与拓扑自洽。目标：以几何/拓扑为一等公民，构建四维度数据与评测，覆盖物体属性、物体-centric方位、导航空间与具身操作。</p>
+  <section class="hero">
+    <div class="kicker">Data First</div>
+    <h1>From Unified Image Model to World Model</h1>
+    <p class="lead">
+      理想目标：面向用户意图与当前场景，模型可理解—规划—执行，并生成一致的关键帧与完整视频。
+      现实缺口：现有统一图像模型在3D空间感知与生成上存在基础能力不足，直接削弱了规划与生成的可信性。
+      为此我们构建一个自下而上的层级化数据集，覆盖四个关键维度，促使统一图像模型迈向世界模型。
+    </p>
   </section>
+
+  <!-- Section 1: 数据分布（四个维度） -->
+  <div class="bar">
+    <h2>一、数据分布：四个维度</h2>
+    <span class="pill">Distribution</span>
+  </div>
+  <div class="copy">
+    <strong>维度说明</strong>：
+    1) 物体基础集合属性感知；2) 物体-centric 空间方位感知；3) Navigation 空间感知（视点/路径与多图推理）；
+    4) 具身操作空间感知（理解—规划—操作—生成的序列化场景）。
+  </div>
 
   <!-- Axis 1 -->
-  <div class="bar full-bleed">
-    <h2>维度一｜物体基础集合属性感知</h2>
-    <span class="pill">Axis 1</span>
-  </div>
-  <section class="stage full-bleed" data-autoplay data-interval="2200">
+  <section class="stage" data-autoplay data-interval="2200" aria-label="Axis 1">
     <div class="track">
-      <div class="frame">
-        <img src="./images/1_cup.png" alt="Axis1: cup">
-      </div>
-      <div class="frame">
-        <img src="./images/1_sofa.png" alt="Axis1: sofa">
-      </div>
+      <div class="frame"><img src="./images/1_cup.png" alt="Axis1: cup"></div>
+      <div class="frame"><img src="./images/1_sofa.png" alt="Axis1: sofa"></div>
     </div>
     <button class="ctrl left" aria-label="Prev">&#10094;</button>
     <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud">
-      <div class="caption"> </div>
-      <div class="dots"></div>
-    </div>
+    <div class="hud"><div class="dots"></div></div>
   </section>
+  <div class="copy">
+    维度一聚焦对象的基础属性与几何特征，提供后续方位与交互的稳定锚点。
+  </div>
 
   <!-- Axis 2 -->
-  <div class="bar full-bleed">
-    <h2>维度二｜物体-centric 空间方位感知</h2>
-    <span class="pill">Axis 2</span>
-  </div>
-  <section class="stage full-bleed" data-autoplay data-interval="2200">
+  <section class="stage" data-autoplay data-interval="2200" aria-label="Axis 2">
     <div class="track">
-      <div class="frame">
-        <img src="./images/2_chair.png" alt="Axis2: chair centric">
-      </div>
-      <div class="frame">
-        <img src="./images/2_car.png" alt="Axis2: car centric">
-      </div>
+      <div class="frame"><img src="./images/2_chair.png" alt="Axis2: chair centric"></div>
+      <div class="frame"><img src="./images/2_car.png" alt="Axis2: car centric"></div>
     </div>
     <button class="ctrl left" aria-label="Prev">&#10094;</button>
     <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud">
-      <div class="caption"></div>
-      <div class="dots"></div>
-    </div>
+    <div class="hud"><div class="dots"></div></div>
   </section>
+  <div class="copy">
+    维度二围绕“物体为中心”的相对方位、近远层级与遮挡关系，强调局部—整体的拓扑一致性。
+  </div>
 
   <!-- Axis 3 -->
-  <div class="bar full-bleed">
-    <h2>维度三｜Navigation 空间感知</h2>
-    <span class="pill">Axis 3</span>
-  </div>
-  <section class="stage full-bleed" data-autoplay data-interval="2200">
+  <section class="stage" data-autoplay data-interval="2000" aria-label="Axis 3">
     <div class="track">
-      <div class="frame">
-        <img src="./images/3_scannetsofa.png" alt="Axis3: scannet sofa">
-      </div>
-      <div class="frame">
-        <img src="./images/3_drive.png" alt="Axis3: drive">
-      </div>
-      <!-- 单个案例 -->
-      <div class="frame">
-        <img src="./images/3_gta_1.png" alt="Axis3: gta sequence 1">
-      </div>
-      <div class="frame">
-        <img src="./images/3_gta_2.png" alt="Axis3: gta sequence 2">
-      </div>
-      <div class="frame">
-        <img src="./images/3_gta_3.png" alt="Axis3: gta sequence 3">
-      </div>
-      <div class="frame">
-        <img src="./images/3_gta_4.png" alt="Axis3: gta sequence 4">
-      </div>
+      <div class="frame"><img src="./images/3_scannetsofa.png" alt="Axis3: scannet sofa"></div>
+      <div class="frame"><img src="./images/3_drive.png" alt="Axis3: drive"></div>
+      <div class="frame"><img src="./images/3_gta_1.png" alt="Axis3: gta sequence 1"></div>
+      <div class="frame"><img src="./images/3_gta_2.png" alt="Axis3: gta sequence 2"></div>
+      <div class="frame"><img src="./images/3_gta_3.png" alt="Axis3: gta sequence 3"></div>
+      <div class="frame"><img src="./images/3_gta_4.png" alt="Axis3: gta sequence 4"></div>
     </div>
     <button class="ctrl left" aria-label="Prev">&#10094;</button>
     <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud">
-      <div class="caption"></div>
-      <div class="dots"></div>
-    </div>
+    <div class="hud"><div class="dots"></div></div>
   </section>
+  <div class="copy">
+    维度三考察跨视点/路径的空间连续性与可预测性，并引入多图推理以保持结构与时序自洽。
+  </div>
 
   <!-- Axis 4 -->
-  <div class="bar full-bleed">
-    <h2>维度四｜具身操作空间感知</h2>
-    <span class="pill">Axis 4</span>
-  </div>
-  <section class="stage full-bleed" data-autoplay data-interval="1800">
+  <section class="stage" data-autoplay data-interval="1600" aria-label="Axis 4">
     <div class="track">
-      <!-- AGI-Bot sequence -->
       <div class="frame"><img src="./images/4_agibot_1.png" alt="AGI-Bot 1"></div>
       <div class="frame"><img src="./images/4_agibot_2.png" alt="AGI-Bot 2"></div>
       <div class="frame"><img src="./images/4_agibot_3.png" alt="AGI-Bot 3"></div>
       <div class="frame"><img src="./images/4_agibot_4.png" alt="AGI-Bot 4"></div>
       <div class="frame"><img src="./images/4_agibot_5.png" alt="AGI-Bot 5"></div>
       <div class="frame"><img src="./images/4_agibot_6.png" alt="AGI-Bot 6"></div>
-      <!-- Minecraft sequence -->
       <div class="frame"><img src="./images/4_minecraft_1.png" alt="Minecraft 1"></div>
       <div class="frame"><img src="./images/4_minecraft_2.png" alt="Minecraft 2"></div>
       <div class="frame"><img src="./images/4_minecraft_3.png" alt="Minecraft 3"></div>
@@ -240,18 +155,25 @@
     </div>
     <button class="ctrl left" aria-label="Prev">&#10094;</button>
     <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud">
-      <div class="caption"> </div>
-      <div class="dots"></div>
-    </div>
+    <div class="hud"><div class="dots"></div></div>
   </section>
+  <div class="copy">
+    维度四以具身操作序列为目标形态，检验理解—规划—操作—生成的闭环一致性，指向“世界级”能力。
+  </div>
 
-  <!-- Pipeline -->
-  <div class="bar full-bleed">
-    <h2>系统化数据构建管线</h2>
+  <!-- Section 2: 数据构建 Pipe -->
+  <div class="bar">
+    <h2>二、系统化数据构建 Pipeline</h2>
     <span class="pill">Pipeline</span>
   </div>
-  <section class="stage full-bleed" data-autoplay data-interval="1800">
+  <div class="copy">
+    <strong>数据来源与融合</strong>：以 VLM 为驱动，汇聚 ScanNet、Omniworld、AGIBot、nuScenes 等真实数据，并结合 Minetest/Libero 等仿真与游戏域数据补强长尾与可控性。
+    <br/>
+    <strong>语义注入与自动筛选</strong>：注入部分 VQA 标注，引导自动化构建与筛选各维度的编辑对与对照样本，提升结构/拓扑信号密度。
+    <br/>
+    <strong>质量增强（可选）</strong>：对代表性样本使用 GPT-4o 等进行语义与视觉增强，覆盖难例并提升可读性。
+  </div>
+  <section class="stage" data-autoplay data-interval="1800" aria-label="Pipeline slides">
     <div class="track">
       <div class="frame"><img src="./images/datapipe_1.png" alt="datapipe 1"></div>
       <div class="frame"><img src="./images/datapipe_2.png" alt="datapipe 2"></div>
@@ -260,18 +182,25 @@
     </div>
     <button class="ctrl left" aria-label="Prev">&#10094;</button>
     <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud">
-      <div class="caption"></div>
-      <div class="dots"></div>
-    </div>
+    <div class="hud"><div class="dots"></div></div>
   </section>
-
-  <!-- GAVAE (Appendix visual) -->
-  <div class="bar full-bleed">
-    <h2>GAVAE </h2>
-    <span class="pill">Appendix</span>
+  <div class="copy">
+    目标：以可扩展流程将多域样本自动组织到四个层级维度，形成递进的空间能力土壤，服务“从统一图像模型到世界模型”的路线。
   </div>
-  <section class="stage full-bleed" data-autoplay data-interval="1600">
+
+  <!-- Section 3: GAVAE -->
+  <div class="bar">
+    <h2>三、GAVAE：为何在 VAE 上发力，以及如何注入 3D 归纳偏置</h2>
+    <span class="pill">GAVAE</span>
+  </div>
+  <div class="copy">
+    <strong>为何聚焦 VAE</strong>：潜空间结构决定世界建模的可分解与可控。传统2D VAE以像素重建为主，3D关系易被弱化，不利于承载世界状态。
+    <br/>
+    <strong>改进方向</strong>：对齐 3D 编码器（如 CUT3R）的中层几何特征分布，将深度/法线/表面方向等几何代理注入潜空间，使其对3D结构更敏感。
+    <br/>
+    <strong>对齐动机</strong>：以3D特征为教师分布，约束VAE编码器输出的分布一致性，促进潜空间承载拓扑与几何信息，支撑导航与具身操作中的连贯生成。
+  </div>
+  <section class="stage" data-autoplay data-interval="1600" aria-label="GAVAE slides">
     <div class="track">
       <div class="frame"><img src="./images/GAVAE_1.png" alt="GAVAE 1"></div>
       <div class="frame"><img src="./images/GAVAE_2.png" alt="GAVAE 2"></div>
@@ -283,16 +212,16 @@
     </div>
     <button class="ctrl left" aria-label="Prev">&#10094;</button>
     <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud">
-      <div class="caption"></div>
-      <div class="dots"></div>
-    </div>
+    <div class="hud"><div class="dots"></div></div>
   </section>
+  <div class="copy">
+    GAVAE并非端到端世界模型，而是提供更具3D可读性的潜空间基座，与本数据集的四维度递进相配合，缩短“统一图像模型→世界模型”的距离。
+  </div>
 
   <div class="spacer"></div>
 
   <script>
-    // Full-bleed, auto-play, single-image slides; no thumbnails; dots reflect current slide.
+    // Full-width auto-play stage; minimal UI; white theme.
     (function(){
       const STAGES = Array.from(document.querySelectorAll('.stage'));
 
@@ -312,7 +241,7 @@
         frames.forEach((_,i)=>{
           const d = document.createElement('span');
           d.className = 'dot' + (i===0?' active':'');
-          d.addEventListener('click', ()=>{ stop(); go(i); });
+          d.addEventListener('click', ()=>{ stop(); go(i); start(); });
           dotsWrap.appendChild(d);
         });
 
@@ -349,20 +278,13 @@
         stage.addEventListener('mouseenter', stop);
         stage.addEventListener('mouseleave', start);
 
-        // Touch: pause during interaction
-        let touching = false;
-        stage.addEventListener('touchstart', ()=>{ touching=true; stop(); }, {passive:true});
-        stage.addEventListener('touchend', ()=>{ touching=false; start(); }, {passive:true});
-
         // Basic swipe
         let sx=0, dx=0;
-        stage.addEventListener('touchstart', (e)=>{ sx = e.touches[0].clientX; }, {passive:true});
+        stage.addEventListener('touchstart', (e)=>{ sx = e.touches[0].clientX; stop(); }, {passive:true});
         stage.addEventListener('touchmove', (e)=>{ dx = e.touches[0].clientX - sx; }, {passive:true});
         stage.addEventListener('touchend', ()=>{
-          if(Math.abs(dx) > 40){
-            if(dx<0) next(); else prev();
-          }
-          dx = 0;
+          if(Math.abs(dx) > 40){ if(dx<0) next(); else prev(); }
+          dx = 0; start();
         });
 
         // Init
