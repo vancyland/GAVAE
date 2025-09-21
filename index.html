@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>World-Consistent Evaluation & Data</title>
+
+  <style>
+    :root{
+      --bg:#0b0c10;
+      --bg-2:#0f1117;
+      --text:#e9eef7;
+      --muted:#a9b4c4;
+      --accent:#7ab7ff;
+      --border:#232836;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0; padding:0; height:100%;
+      background:var(--bg); color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Inter,Roboto,Helvetica,Arial,sans-serif;
+    }
+
+    /* Full-bleed layout */
+    .full-bleed{
+      width:100%;
+    }
+    .hero{
+      width:100%; min-height:48vh; padding:6vh 6vw;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(122,183,255,.18), transparent 60%),
+        radial-gradient(1200px 600px at 80% 110%, rgba(155,255,208,.12), transparent 60%);
+      display:flex; flex-direction:column; justify-content:flex-end;
+    }
+    .hero h1{
+      font-size:clamp(28px,4.2vw,54px);
+      margin:0 0 .4rem 0; line-height:1.15; letter-spacing:.2px;
+    }
+    .hero p{
+      margin:.2rem 0; color:var(--muted);
+      font-size:clamp(14px,1.35vw,18px)
+    }
+
+    /* Section header bar */
+    .bar{
+      display:flex; align-items:baseline; justify-content:space-between;
+      padding:2.2vh 6vw 1.2vh; border-top:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+    }
+    .bar h2{
+      margin:0; font-size:clamp(18px,2vw,26px); font-weight:700;
+    }
+    .pill{
+      font-size:12px; letter-spacing:.35px; text-transform:uppercase;
+      color:#cfe2ff; border:1px solid var(--border); border-radius:999px; padding:6px 10px;
+      background:rgba(122,183,255,.08)
+    }
+
+    /* Full-screen carousels */
+    .stage{
+      position:relative;
+      width:100%;
+      height:64vh; /* big and immersive */
+      min-height:360px;
+      background:var(--bg-2);
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      overflow:hidden;
+    }
+    @media (min-height:900px){
+      .stage{ height:68vh; }
+    }
+
+    .track{
+      display:flex; width:100%; height:100%;
+      will-change:transform;
+    }
+    .frame{
+      position:relative; min-width:100%; height:100%;
+      display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(180deg,#0a0c12,#0a0c12 40%,#0f1117);
+    }
+    /* Single image slide fills area with contain to avoid crop */
+    .frame img{
+      width:100%; height:100%; object-fit:contain; display:block;
+      transform:translateZ(0);
+      image-rendering:auto;
+    }
+
+    /* Auto-play controls (bottom overlay) */
+    .hud{
+      position:absolute; left:0; right:0; bottom:0;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 14px; gap:12px;
+      background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.35));
+      color:#e5edff;
+    }
+    .caption{
+      font-size:14px; color:#d4def0; text-shadow:0 1px 2px rgba(0,0,0,.4);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:65vw;
+    }
+    .dots{display:flex; gap:8px; align-items:center}
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background:#4b5261; border:1px solid #2b2f3a; opacity:.9;
+    }
+    .dot.active{ background:var(--accent); box-shadow:0 0 0 4px rgba(122,183,255,.18) }
+
+    /* Controls (optional hover) */
+    .ctrl{
+      position:absolute; top:50%; transform:translateY(-50%);
+      width:44px; height:44px; border-radius:50%;
+      border:1px solid var(--border);
+      background:rgba(20,24,33,.35); color:#e8f0ff;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:.25s;
+      backdrop-filter:blur(6px);
+    }
+    .stage:hover .ctrl{ opacity:1; pointer-events:auto }
+    .ctrl.left{ left:14px }
+    .ctrl.right{ right:14px }
+    .ctrl:hover{ background:rgba(20,24,33,.6) }
+
+    /* Notes */
+    .note{
+      padding:10px 6vw 34px; color:var(--muted); font-size:13px;
+    }
+
+    /* Footer spacing */
+    .spacer{height:6vh}
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero full-bleed">
+    <h1>World-Consistent Evaluation & Data</h1>
+    <p>动机：传统评测偏外观相似，难以衡量空间与拓扑自洽。目标：以几何/拓扑为一等公民，构建四维度数据与评测，覆盖物体属性、物体-centric方位、导航空间与具身操作。</p>
+  </section>
+
+  <!-- Axis 1 -->
+  <div class="bar full-bleed">
+    <h2>维度一｜物体基础集合属性感知</h2>
+    <span class="pill">Axis 1</span>
+  </div>
+  <section class="stage full-bleed" data-autoplay data-interval="2200">
+    <div class="track">
+      <div class="frame">
+        <img src="./images/1_cup.png" alt="Axis1: cup">
+      </div>
+      <div class="frame">
+        <img src="./images/1_sofa.png" alt="Axis1: sofa">
+      </div>
+    </div>
+    <button class="ctrl left" aria-label="Prev">&#10094;</button>
+    <button class="ctrl right" aria-label="Next">&#10095;</button>
+    <div class="hud">
+      <div class="caption"> </div>
+      <div class="dots"></div>
+    </div>
+  </section>
+
+  <!-- Axis 2 -->
+  <div class="bar full-bleed">
+    <h2>维度二｜物体-centric 空间方位感知</h2>
+    <span class="pill">Axis 2</span>
+  </div>
+  <section class="stage full-bleed" data-autoplay data-interval="2200">
+    <div class="track">
+      <div class="frame">
+        <img src="./images/2_chair.png" alt="Axis2: chair centric">
+      </div>
+      <div class="frame">
+        <img src="./images/2_car.png" alt="Axis2: car centric">
+      </div>
+    </div>
+    <button class="ctrl left" aria-label="Prev">&#10094;</button>
+    <button class="ctrl right" aria-label="Next">&#10095;</button>
+    <div class="hud">
+      <div class="caption"></div>
+      <div class="dots"></div>
+    </div>
+  </section>
+
+  <!-- Axis 3 -->
+  <div class="bar full-bleed">
+    <h2>维度三｜Navigation 空间感知</h2>
+    <span class="pill">Axis 3</span>
+  </div>
+  <section class="stage full-bleed" data-autoplay data-interval="2200">
+    <div class="track">
+      <div class="frame">
+        <img src="./images/3_scannetsofa.png" alt="Axis3: scannet sofa">
+      </div>
+      <div class="frame">
+        <img src="./images/3_drive.png" alt="Axis3: drive">
+      </div>
+      <!-- 单个案例 -->
+      <div class="frame">
+        <img src="./images/3_gta_1.png" alt="Axis3: gta sequence 1">
+      </div>
+      <div class="frame">
+        <img src="./images/3_gta_2.png" alt="Axis3: gta sequence 2">
+      </div>
+      <div class="frame">
+        <img src="./images/3_gta_3.png" alt="Axis3: gta sequence 3">
+      </div>
+      <div class="frame">
+        <img src="./images/3_gta_4.png" alt="Axis3: gta sequence 4">
+      </div>
+    </div>
+    <button class="ctrl left" aria-label="Prev">&#10094;</button>
+    <button class="ctrl right" aria-label="Next">&#10095;</button>
+    <div class="hud">
+      <div class="caption"></div>
+      <div class="dots"></div>
+    </div>
+  </section>
+
+  <!-- Axis 4 -->
+  <div class="bar full-bleed">
+    <h2>维度四｜具身操作空间感知</h2>
+    <span class="pill">Axis 4</span>
+  </div>
+  <section class="stage full-bleed" data-autoplay data-interval="1800">
+    <div class="track">
+      <!-- AGI-Bot sequence -->
+      <div class="frame"><img src="./images/4_agibot_1.png" alt="AGI-Bot 1"></div>
+      <div class="frame"><img src="./images/4_agibot_2.png" alt="AGI-Bot 2"></div>
+      <div class="frame"><img src="./images/4_agibot_3.png" alt="AGI-Bot 3"></div>
+      <div class="frame"><img src="./images/4_agibot_4.png" alt="AGI-Bot 4"></div>
+      <div class="frame"><img src="./images/4_agibot_5.png" alt="AGI-Bot 5"></div>
+      <div class="frame"><img src="./images/4_agibot_6.png" alt="AGI-Bot 6"></div>
+      <!-- Minecraft sequence -->
+      <div class="frame"><img src="./images/4_minecraft_1.png" alt="Minecraft 1"></div>
+      <div class="frame"><img src="./images/4_minecraft_2.png" alt="Minecraft 2"></div>
+      <div class="frame"><img src="./images/4_minecraft_3.png" alt="Minecraft 3"></div>
+      <div class="frame"><img src="./images/4_minecraft_4.png" alt="Minecraft 4"></div>
+      <div class="frame"><img src="./images/4_minecraft_5.png" alt="Minecraft 5"></div>
+    </div>
+    <button class="ctrl left" aria-label="Prev">&#10094;</button>
+    <button class="ctrl right" aria-label="Next">&#10095;</button>
+    <div class="hud">
+      <div class="caption"> </div>
+      <div class="dots"></div>
+    </div>
+  </section>
+
+  <!-- Pipeline -->
+  <div class="bar full-bleed">
+    <h2>系统化数据构建管线</h2>
+    <span class="pill">Pipeline</span>
+  </div>
+  <section class="stage full-bleed" data-autoplay data-interval="1800">
+    <div class="track">
+      <div class="frame"><img src="./images/datapipe_1.png" alt="datapipe 1"></div>
+      <div class="frame"><img src="./images/datapipe_2.png" alt="datapipe 2"></div>
+      <div class="frame"><img src="./images/datapipe_3.png" alt="datapipe 3"></div>
+      <div class="frame"><img src="./images/datapipe_4.png" alt="datapipe 4"></div>
+    </div>
+    <button class="ctrl left" aria-label="Prev">&#10094;</button>
+    <button class="ctrl right" aria-label="Next">&#10095;</button>
+    <div class="hud">
+      <div class="caption"></div>
+      <div class="dots"></div>
+    </div>
+  </section>
+
+  <!-- GAVAE (Appendix visual) -->
+  <div class="bar full-bleed">
+    <h2>GAVAE </h2>
+    <span class="pill">Appendix</span>
+  </div>
+  <section class="stage full-bleed" data-autoplay data-interval="1600">
+    <div class="track">
+      <div class="frame"><img src="./images/GAVAE_1.png" alt="GAVAE 1"></div>
+      <div class="frame"><img src="./images/GAVAE_2.png" alt="GAVAE 2"></div>
+      <div class="frame"><img src="./images/GAVAE_3.png" alt="GAVAE 3"></div>
+      <div class="frame"><img src="./images/GAVAE_4.png" alt="GAVAE 4"></div>
+      <div class="frame"><img src="./images/GAVAE_5.png" alt="GAVAE 5"></div>
+      <div class="frame"><img src="./images/GAVAE_6.png" alt="GAVAE 6"></div>
+      <div class="frame"><img src="./images/GAVAE_7.png" alt="GAVAE 7"></div>
+    </div>
+    <button class="ctrl left" aria-label="Prev">&#10094;</button>
+    <button class="ctrl right" aria-label="Next">&#10095;</button>
+    <div class="hud">
+      <div class="caption"></div>
+      <div class="dots"></div>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+
+  <script>
+    // Full-bleed, auto-play, single-image slides; no thumbnails; dots reflect current slide.
+    (function(){
+      const STAGES = Array.from(document.querySelectorAll('.stage'));
+
+      STAGES.forEach(stage=>{
+        const track = stage.querySelector('.track');
+        const frames = Array.from(stage.querySelectorAll('.frame'));
+        const left = stage.querySelector('.ctrl.left');
+        const right = stage.querySelector('.ctrl.right');
+        const dotsWrap = stage.querySelector('.dots');
+        const interval = Number(stage.dataset.interval || 2200);
+        const autoplay = stage.hasAttribute('data-autoplay');
+
+        let idx = 0; let timer = null;
+
+        // Build dots
+        dotsWrap.innerHTML = '';
+        frames.forEach((_,i)=>{
+          const d = document.createElement('span');
+          d.className = 'dot' + (i===0?' active':'');
+          d.addEventListener('click', ()=>{ stop(); go(i); });
+          dotsWrap.appendChild(d);
+        });
+
+        function update(){
+          const w = stage.clientWidth;
+          track.style.transform = 'translate3d(' + (-idx * w) + 'px,0,0)';
+          const dots = dotsWrap.querySelectorAll('.dot');
+          dots.forEach((dot,i)=>dot.classList.toggle('active', i===idx));
+        }
+        function go(i){
+          idx = (i + frames.length) % frames.length;
+          update();
+        }
+        function next(){ go(idx+1); }
+        function prev(){ go(idx-1); }
+
+        function start(){
+          if(!autoplay) return;
+          stop();
+          timer = setInterval(next, interval);
+        }
+        function stop(){
+          if(timer){ clearInterval(timer); timer = null; }
+        }
+
+        // Controls
+        left.addEventListener('click', ()=>{ stop(); prev(); start(); });
+        right.addEventListener('click', ()=>{ stop(); next(); start(); });
+
+        // Resize handling
+        window.addEventListener('resize', update, {passive:true});
+
+        // Pause on hover for desktop
+        stage.addEventListener('mouseenter', stop);
+        stage.addEventListener('mouseleave', start);
+
+        // Touch: pause during interaction
+        let touching = false;
+        stage.addEventListener('touchstart', ()=>{ touching=true; stop(); }, {passive:true});
+        stage.addEventListener('touchend', ()=>{ touching=false; start(); }, {passive:true});
+
+        // Basic swipe
+        let sx=0, dx=0;
+        stage.addEventListener('touchstart', (e)=>{ sx = e.touches[0].clientX; }, {passive:true});
+        stage.addEventListener('touchmove', (e)=>{ dx = e.touches[0].clientX - sx; }, {passive:true});
+        stage.addEventListener('touchend', ()=>{
+          if(Math.abs(dx) > 40){
+            if(dx<0) next(); else prev();
+          }
+          dx = 0;
+        });
+
+        // Init
+        go(0);
+        start();
+      });
+    })();
+  </script>
+</body>
+</html>
