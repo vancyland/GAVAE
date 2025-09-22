@@ -5,294 +5,709 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>From Unified Image Model to World Model</title>
   <style>
-    :root{
-      --bg:#ffffff; --ink:#0b1220; --muted:#4a5568; --accent:#1a73e8; --line:#e6e8ee;
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --bg-white: #ffffff;
+      --bg-gray: #f9fafb;
+      --bg-section: #f3f4f6;
+      --border: #e5e7eb;
+      --border-light: #f3f4f6;
+      --accent-bg: #eff6ff;
+      --accent-border: #dbeafe;
+      --radius: 12px;
+      --radius-sm: 8px;
     }
-    *{box-sizing:border-box}
-    html,body{margin:0; padding:0; height:100%; background:var(--bg); color:var(--ink);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Inter,Roboto,Helvetica,Arial,sans-serif;}
 
-    /* Full-bleed hero on white */
-    .hero{
-      width:100%; min-height:44vh; padding:8vh 6vw 6vh;
-      background:
-        radial-gradient(1200px 600px at 15% -15%, rgba(26,115,232,.08), transparent 60%),
-        radial-gradient(1200px 600px at 85% 115%, rgba(26,115,232,.06), transparent 60%);
-      display:flex; flex-direction:column; justify-content:flex-end;
-      border-bottom:1px solid var(--line);
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .kicker{ color:#255ec5; font-weight:600; letter-spacing:.4px; text-transform:uppercase; font-size:12px; }
-    .hero h1{ margin:.4rem 0 .4rem 0; line-height:1.06; letter-spacing:.2px; font-size:clamp(30px,4.4vw,56px); }
-    .lead{ color:#1f2937; margin:.4rem 0 0; font-size:clamp(14px,1.25vw,18px); max-width:1200px }
 
-    /* Section header */
-    .bar{
-      display:flex; align-items:baseline; justify-content:space-between; gap:16px;
-      padding:2.0vh 6vw 1.0vh; border-top:1px solid var(--line); background:#fff;
-      position:sticky; top:0; z-index:5;
+    html {
+      scroll-behavior: smooth;
     }
-    .bar h2{margin:0; font-size:clamp(18px,2.2vw,28px); font-weight:800}
-    .pill{font-size:12px; letter-spacing:.35px; text-transform:uppercase; color:#255ec5; border:1px solid var(--line);
-      border-radius:999px; padding:6px 10px; background:#f4f7ff}
 
-    /* Paragraph blocks */
-    .copy{padding:0 6vw 2.2vh; color:var(--muted); font-size:clamp(13px,1.1vw,17px); max-width:1600px}
-    .copy strong{color:#111827}
-
-    /* Full-width auto-play stage (white page, framed area) */
-    .stage{position:relative; width:100%; height:66vh; min-height:360px; background:#fafbff;
-      border-top:1px solid var(--line); border-bottom:1px solid var(--line); overflow:hidden;}
-    @media (min-height:900px){ .stage{ height:70vh; } }
-
-    .track{display:flex; width:100%; height:100%; will-change:transform;}
-    .frame{position:relative; min-width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#ffffff;}
-    .frame img{width:100%; height:100%; object-fit:contain; display:block; transform:translateZ(0); image-rendering:auto;}
-
-    /* Minimal HUD (no verbose captions) */
-    .hud{
-      position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center;
-      padding:8px 14px; background:linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.85));
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", 
+                   "Microsoft YaHei", Inter, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background: var(--bg-white);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    .dots{display:flex; gap:8px; align-items:center}
-    .dot{width:8px; height:8px; border-radius:50%; background:#d2d7e2; border:1px solid #c6cada}
-    .dot.active{ background:var(--accent); box-shadow:0 0 0 4px rgba(26,115,232,.18) }
 
-    /* Optional hover controls */
-    .ctrl{position:absolute; top:50%; transform:translateY(-50%);
-      width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:rgba(255,255,255,.7);
-      color:#1f2937; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:.25s; backdrop-filter:blur(6px);}
-    .stage:hover .ctrl{opacity:1; pointer-events:auto}
-    .ctrl.left{left:14px} .ctrl.right{right:14px}
-    .ctrl:hover{background:#ffffff}
+    /* Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
 
-    .spacer{height:6vh}
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 120px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .hero h1 {
+      color: white;
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero .lead {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: clamp(16px, 1.5vw, 20px);
+      line-height: 1.7;
+      max-width: 900px;
+    }
+
+    /* Section Styles */
+    .section {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .section:nth-child(even) {
+      background: var(--bg-gray);
+    }
+
+    .section-header {
+      margin-bottom: 48px;
+    }
+
+    .section-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      background: var(--accent-bg);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid var(--accent-border);
+    }
+
+    .section-content {
+      color: var(--text-secondary);
+      font-size: 16px;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .section-content strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Carousel Container */
+    .carousel-container {
+      background: white;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      margin-bottom: 32px;
+    }
+
+    .carousel {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      background: var(--bg-gray);
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .carousel {
+        height: 350px;
+      }
+    }
+
+    .carousel-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: white;
+    }
+
+    .carousel-slide img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Carousel Controls */
+    .carousel-controls {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      pointer-events: none;
+    }
+
+    .carousel-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: all;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      font-size: 20px;
+    }
+
+    .carousel-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Carousel Indicators */
+    .carousel-indicators {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .indicator.active {
+      width: 24px;
+      border-radius: 4px;
+      background: var(--primary);
+    }
+
+    /* Dimension Card */
+    .dimension-description {
+      background: var(--accent-bg);
+      border-left: 4px solid var(--primary);
+      padding: 20px 24px;
+      border-radius: var(--radius-sm);
+      margin-top: -16px;
+      margin-bottom: 48px;
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* Feature List */
+    .feature-list {
+      display: grid;
+      gap: 16px;
+      margin: 32px 0;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px;
+      background: white;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+      transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    }
+
+    .feature-icon {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      background: var(--accent-bg);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .feature-content {
+      flex: 1;
+    }
+
+    .feature-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .feature-desc {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      background: var(--bg-gray);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 80px 0 60px;
+      }
+      
+      .section {
+        padding: 60px 0;
+      }
+
+      .carousel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+
+      .container {
+        padding: 0 16px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- HERO -->
+  <!-- Hero Section -->
   <section class="hero">
-    <div class="kicker">Data First</div>
-    <h1>From Unified Image Model to World Model (Cong Wan)</h1>
-    <p class="lead">
-      理想目标：面向用户意图与当前场景，模型可理解—规划—执行，并生成一致的关键帧(视频)。
-    
-      然而现有统一图像模型在3D空间感知与生成上存在基础能力不足，直接削弱了规划与生成的可信性。
-      为此我们构建一个自下而上的层级化数据集，覆盖四个关键维度，并提出GAVAE：具备空间集合感知的新一代VAE，促使统一图像模型迈向世界模型。
-    </p>
-  </section>
-
-  <!-- Section 1: 数据分布（四个维度） -->
-  <div class="bar">
-    <h2>一、数据分布：四个维度</h2>
-    <span class="pill">Distribution</span>
-  </div>
-  <div class="copy">
-    <strong>维度说明</strong>：
-    1) 物体基础集合属性感知；2) 物体-centric 空间方位感知；3) Navigation 空间感知（视点/路径与多图推理）；
-    4) 具身操作空间感知（理解—规划—操作—生成的序列化场景）。
-  </div>
-
-  <!-- Axis 1 -->
-  <section class="stage" data-autoplay data-interval="2200" aria-label="Axis 1">
-    <div class="track">
-      <div class="frame"><img src="./images/1_cup.png" alt="Axis1: cup"></div>
-      <div class="frame"><img src="./images/1_sofa.png" alt="Axis1: sofa"></div>
+    <div class="container hero-content">
+      <span class="badge">Data First Approach</span>
+      <h1>From Unified Image Model to World Model</h1>
+      <p class="lead">
+        理想目标：面向用户意图与当前场景，模型可理解—规划—执行，并生成一致的关键帧(视频)。
+        然而现有统一图像模型在3D空间感知与生成上存在基础能力不足，直接削弱了规划与生成的可信性。
+        为此我们构建一个自下而上的层级化数据集，覆盖四个关键维度，并提出GAVAE：具备空间几何感知的新一代VAE，促使统一图像模型迈向世界模型。
+      </p>
     </div>
-    <button class="ctrl left" aria-label="Prev">&#10094;</button>
-    <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud"><div class="dots"></div></div>
   </section>
-  <div class="copy">
-    维度一聚焦对象的基础属性与几何特征，提供后续方位与交互的稳定锚点。
-  </div>
 
-  <!-- Axis 2 -->
-  <section class="stage" data-autoplay data-interval="2200" aria-label="Axis 2">
-    <div class="track">
-      <div class="frame"><img src="./images/2_chair.png" alt="Axis2: chair centric"></div>
-      <div class="frame"><img src="./images/2_car.png" alt="Axis2: car centric"></div>
-    </div>
-    <button class="ctrl left" aria-label="Prev">&#10094;</button>
-    <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud"><div class="dots"></div></div>
-  </section>
-  <div class="copy">
-    维度二围绕“物体为中心”的相对方位、近远层级与遮挡关系，强调局部—整体的拓扑一致性。
-  </div>
+  <!-- Section 1: 数据分布 -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-number">1</span>
+        <h2 class="section-title">数据分布：四个维度</h2>
+        <span class="section-tag">Distribution</span>
+      </div>
+      
+      <div class="section-content">
+        <strong>维度说明：</strong>
+        构建层级化的数据体系，从基础感知到复杂交互，逐步提升模型的世界理解能力。
+      </div>
 
-  <!-- Axis 3 -->
-  <section class="stage" data-autoplay data-interval="2000" aria-label="Axis 3">
-    <div class="track">
-      <div class="frame"><img src="./images/3_scannetsofa.png" alt="Axis3: scannet sofa"></div>
-      <div class="frame"><img src="./images/3_drive.png" alt="Axis3: drive"></div>
-      <div class="frame"><img src="./images/3_gta_1.png" alt="Axis3: gta sequence 1"></div>
-      <div class="frame"><img src="./images/3_gta_2.png" alt="Axis3: gta sequence 2"></div>
-      <div class="frame"><img src="./images/3_gta_3.png" alt="Axis3: gta sequence 3"></div>
-      <div class="frame"><img src="./images/3_gta_4.png" alt="Axis3: gta sequence 4"></div>
-    </div>
-    <button class="ctrl left" aria-label="Prev">&#10094;</button>
-    <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud"><div class="dots"></div></div>
-  </section>
-  <div class="copy">
-    维度三考察跨视点/路径的空间连续性与可预测性，并引入多图推理以保持结构与时序自洽。
-  </div>
+      <!-- Dimension 1 -->
+      <h3 style="font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: var(--text-primary);">
+        维度一：物体基础几何属性感知
+      </h3>
+      <div class="carousel-container">
+        <div class="carousel" data-carousel>
+          <div class="carousel-track">
+            <div class="carousel-slide"><img src="./images/1_cup.png" alt="Cup geometry"></div>
+            <div class="carousel-slide"><img src="./images/1_sofa.png" alt="Sofa geometry"></div>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-btn prev">‹</button>
+            <button class="carousel-btn next">›</button>
+          </div>
+          <div class="carousel-indicators"></div>
+        </div>
+      </div>
+      <div class="dimension-description">
+        聚焦对象的基础属性与几何特征，提供后续方位与交互的稳定锚点。
+      </div>
 
-  <!-- Axis 4 -->
-  <section class="stage" data-autoplay data-interval="1600" aria-label="Axis 4">
-    <div class="track">
-      <div class="frame"><img src="./images/4_agibot_1.png" alt="AGI-Bot 1"></div>
-      <div class="frame"><img src="./images/4_agibot_2.png" alt="AGI-Bot 2"></div>
-      <div class="frame"><img src="./images/4_agibot_3.png" alt="AGI-Bot 3"></div>
-      <div class="frame"><img src="./images/4_agibot_4.png" alt="AGI-Bot 4"></div>
-      <div class="frame"><img src="./images/4_agibot_5.png" alt="AGI-Bot 5"></div>
-      <div class="frame"><img src="./images/4_agibot_6.png" alt="AGI-Bot 6"></div>
-      <div class="frame"><img src="./images/4_minecraft_1.png" alt="Minecraft 1"></div>
-      <div class="frame"><img src="./images/4_minecraft_2.png" alt="Minecraft 2"></div>
-      <div class="frame"><img src="./images/4_minecraft_3.png" alt="Minecraft 3"></div>
-      <div class="frame"><img src="./images/4_minecraft_4.png" alt="Minecraft 4"></div>
-      <div class="frame"><img src="./images/4_minecraft_5.png" alt="Minecraft 5"></div>
-    </div>
-    <button class="ctrl left" aria-label="Prev">&#10094;</button>
-    <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud"><div class="dots"></div></div>
-  </section>
-  <div class="copy">
-    维度四以具身操作序列为目标形态，检验理解—规划—操作—生成的闭环一致性，指向“世界级”能力。
-  </div>
+      <!-- Dimension 2 -->
+      <h3 style="font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: var(--text-primary);">
+        维度二：物体为中心的空间方位感知
+      </h3>
+      <div class="carousel-container">
+        <div class="carousel" data-carousel>
+          <div class="carousel-track">
+            <div class="carousel-slide"><img src="./images/2_chair.png" alt="Chair centric"></div>
+            <div class="carousel-slide"><img src="./images/2_car.png" alt="Car centric"></div>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-btn prev">‹</button>
+            <button class="carousel-btn next">›</button>
+          </div>
+          <div class="carousel-indicators"></div>
+        </div>
+      </div>
+      <div class="dimension-description">
+        围绕"物体为中心"的相对方位、近远层级与遮挡关系，强调局部—整体的拓扑一致性。
+      </div>
 
-  <!-- Section 2: 数据构建 Pipe -->
-  <div class="bar">
-    <h2>二、系统化数据构建 Pipeline</h2>
-    <span class="pill">Pipeline</span>
-  </div>
-  <div class="copy">
-    <strong>数据来源与融合</strong>：以 VLM 为驱动，汇聚 ScanNet、Omniworld、AGIBot、nuScenes 等真实数据，并结合 Minetest/Libero 等仿真与游戏域数据补强长尾与可控性。
-    <br/>
-    <strong>语义注入与自动筛选</strong>：注入部分 VQA 标注，引导自动化构建与筛选各维度的编辑对与对照样本，提升结构/拓扑信号密度。
-    <br/>
-    <strong>质量增强（可选）</strong>：对代表性样本使用 GPT-4o 等进行语义与视觉增强，覆盖难例并提升可读性。
-  </div>
-  <section class="stage" data-autoplay data-interval="1800" aria-label="Pipeline slides">
-    <div class="track">
-      <div class="frame"><img src="./images/datapipe_1.png" alt="datapipe 1"></div>
-      <div class="frame"><img src="./images/datapipe_2.png" alt="datapipe 2"></div>
-      <div class="frame"><img src="./images/datapipe_3.png" alt="datapipe 3"></div>
-      <div class="frame"><img src="./images/datapipe_4.png" alt="datapipe 4"></div>
+      <!-- Dimension 3 -->
+      <h3 style="font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: var(--text-primary);">
+        维度三：Navigation空间感知
+      </h3>
+      <div class="carousel-container">
+        <div class="carousel" data-carousel>
+          <div class="carousel-track">
+            <div class="carousel-slide"><img src="./images/3_scannetsofa.png" alt="ScanNet sofa"></div>
+            <div class="carousel-slide"><img src="./images/3_drive.png" alt="Driving scene"></div>
+            <div class="carousel-slide"><img src="./images/3_gta_1.png" alt="GTA sequence 1"></div>
+            <div class="carousel-slide"><img src="./images/3_gta_2.png" alt="GTA sequence 2"></div>
+            <div class="carousel-slide"><img src="./images/3_gta_3.png" alt="GTA sequence 3"></div>
+            <div class="carousel-slide"><img src="./images/3_gta_4.png" alt="GTA sequence 4"></div>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-btn prev">‹</button>
+            <button class="carousel-btn next">›</button>
+          </div>
+          <div class="carousel-indicators"></div>
+        </div>
+      </div>
+      <div class="dimension-description">
+        考察跨视点/路径的空间连续性与可预测性，并引入多图推理以保持结构与时序自洽。
+      </div>
+
+      <!-- Dimension 4 -->
+      <h3 style="font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: var(--text-primary);">
+        维度四：具身操作空间感知
+      </h3>
+      <div class="carousel-container">
+        <div class="carousel" data-carousel>
+          <div class="carousel-track">
+            <div class="carousel-slide"><img src="./images/4_agibot_1.png" alt="AGI-Bot 1"></div>
+            <div class="carousel-slide"><img src="./images/4_agibot_2.png" alt="AGI-Bot 2"></div>
+            <div class="carousel-slide"><img src="./images/4_agibot_3.png" alt="AGI-Bot 3"></div>
+            <div class="carousel-slide"><img src="./images/4_agibot_4.png" alt="AGI-Bot 4"></div>
+            <div class="carousel-slide"><img src="./images/4_agibot_5.png" alt="AGI-Bot 5"></div>
+            <div class="carousel-slide"><img src="./images/4_agibot_6.png" alt="AGI-Bot 6"></div>
+            <div class="carousel-slide"><img src="./images/4_minecraft_1.png" alt="Minecraft 1"></div>
+            <div class="carousel-slide"><img src="./images/4_minecraft_2.png" alt="Minecraft 2"></div>
+            <div class="carousel-slide"><img src="./images/4_minecraft_3.png" alt="Minecraft 3"></div>
+            <div class="carousel-slide"><img src="./images/4_minecraft_4.png" alt="Minecraft 4"></div>
+            <div class="carousel-slide"><img src="./images/4_minecraft_5.png" alt="Minecraft 5"></div>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-btn prev">‹</button>
+            <button class="carousel-btn next">›</button>
+          </div>
+          <div class="carousel-indicators"></div>
+        </div>
+      </div>
+      <div class="dimension-description">
+        以具身操作序列为目标形态，检验理解—规划—操作—生成的闭环一致性，指向"世界级"能力。
+      </div>
     </div>
-    <button class="ctrl left" aria-label="Prev">&#10094;</button>
-    <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud"><div class="dots"></div></div>
   </section>
-  <div class="copy">
-    目标：以可扩展流程将多域样本自动组织到四个层级维度，形成递进的空间能力土壤，服务“从统一图像模型到世界模型”的路线。
-  </div>
+
+  <!-- Section 2: Pipeline -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-number">2</span>
+        <h2 class="section-title">系统化数据构建 Pipeline</h2>
+        <span class="section-tag">Pipeline</span>
+      </div>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">1</div>
+          <div class="feature-content">
+            <div class="feature-title">数据来源与融合</div>
+            <div class="feature-desc">
+              以 VLM 为驱动，汇聚 ScanNet、Omniworld、AGIBot、nuScenes 等真实数据，并结合 Minetest/Libero 等仿真与游戏域数据补强长尾与可控性。
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">2</div>
+          <div class="feature-content">
+            <div class="feature-title">语义注入与自动筛选</div>
+            <div class="feature-desc">
+              注入部分 VQA 标注，引导自动化构建与筛选各维度的编辑对与对照样本，提升结构/拓扑信号密度。
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">3</div>
+          <div class="feature-content">
+            <div class="feature-title">质量增强（可选）</div>
+            <div class="feature-desc">
+              对代表性样本使用 GPT-4o 等进行语义与视觉增强，覆盖难例并提升可读性。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-container">
+        <div class="carousel" data-carousel>
+          <div class="carousel-track">
+            <div class="carousel-slide"><img src="./images/datapipe_1.png" alt="Data pipeline 1"></div>
+            <div class="carousel-slide"><img src="./images/datapipe_2.png" alt="Data pipeline 2"></div>
+            <div class="carousel-slide"><img src="./images/datapipe_3.png" alt="Data pipeline 3"></div>
+            <div class="carousel-slide"><img src="./images/datapipe_4.png" alt="Data pipeline 4"></div>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-btn prev">‹</button>
+            <button class="carousel-btn next">›</button>
+          </div>
+          <div class="carousel-indicators"></div>
+        </div>
+      </div>
+
+      <div class="section-content" style="margin-top: 32px;">
+        <strong>目标：</strong>以可扩展流程将多域样本自动组织到四个层级维度，形成递进的空间能力土壤，服务"从统一图像模型到世界模型"的路线。
+      </div>
+    </div>
+  </section>
 
   <!-- Section 3: GAVAE -->
-  <div class="bar">
-    <h2>三、GAVAE：为何在 VAE 上发力，以及如何注入 3D 归纳偏置</h2>
-    <span class="pill">GAVAE</span>
-  </div>
-  <div class="copy">
-    <strong>为何聚焦 VAE</strong>：潜空间结构决定世界建模的可分解与可控。传统2D VAE以像素重建为主，3D关系易被弱化，不利于承载世界状态。
-    <br/>
-    <strong>改进方向</strong>：对齐 3D 编码器（如 CUT3R）的中层几何特征分布，将深度/法线/表面方向等几何代理注入潜空间，使其对3D结构更敏感。
-    <br/>
-    <strong>对齐动机</strong>：以3D特征为教师分布，约束VAE编码器输出的分布一致性，促进潜空间承载拓扑与几何信息，支撑导航与具身操作中的连贯生成。
-  </div>
-  <section class="stage" data-autoplay data-interval="1600" aria-label="GAVAE slides">
-    <div class="track">
-      <div class="frame"><img src="./images/GAVAE_1.png" alt="GAVAE 1"></div>
-      <div class="frame"><img src="./images/GAVAE_2.png" alt="GAVAE 2"></div>
-      <div class="frame"><img src="./images/GAVAE_3.png" alt="GAVAE 3"></div>
-      <div class="frame"><img src="./images/GAVAE_4.png" alt="GAVAE 4"></div>
-      <div class="frame"><img src="./images/GAVAE_5.png" alt="GAVAE 5"></div>
-      <div class="frame"><img src="./images/GAVAE_6.png" alt="GAVAE 6"></div>
-      <div class="frame"><img src="./images/GAVAE_7.png" alt="GAVAE 7"></div>
-    </div>
-    <button class="ctrl left" aria-label="Prev">&#10094;</button>
-    <button class="ctrl right" aria-label="Next">&#10095;</button>
-    <div class="hud"><div class="dots"></div></div>
-  </section>
-  <div class="copy">
-    GAVAE并非端到端世界模型，而是提供更具3D可读性的潜空间基座，与本数据集的四维度递进相配合，缩短“统一图像模型→世界模型”的距离。
-  </div>
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-number">3</span>
+        <h2 class="section-title">GAVAE：注入3D归纳偏置的新一代VAE</h2>
+        <span class="section-tag">GAVAE</span>
+      </div>
 
-  <div class="spacer"></div>
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">❓</div>
+          <div class="feature-content">
+            <div class="feature-title">为何聚焦 VAE</div>
+            <div class="feature-desc">
+              潜空间结构决定世界建模的可分解与可控。传统2D VAE以像素重建为主，3D关系易被弱化，不利于承载世界状态。
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">🎯</div>
+          <div class="feature-content">
+            <div class="feature-title">改进方向</div>
+            <div class="feature-desc">
+              对齐 3D 编码器（如 CUT3R）的中层几何特征分布，将深度/法线/表面方向等几何代理注入潜空间，使其对3D结构更敏感。
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">🔗</div>
+          <div class="feature-content">
+            <div class="feature-title">对齐动机</div>
+            <div class="feature-desc">
+              以3D特征为教师分布，约束VAE编码器输出的分布一致性，促进潜空间承载拓扑与几何信息，支撑导航与具身操作中的连贯生成。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-container">
+        <div class="carousel" data-carousel>
+          <div class="carousel-track">
+            <div class="carousel-slide"><img src="./images/GAVAE_1.png" alt="GAVAE 1"></div>
+            <div class="carousel-slide"><img src="./images/GAVAE_2.png" alt="GAVAE 2"></div>
+            <div class="carousel-slide"><img src="./images/GAVAE_3.png" alt="GAVAE 3"></div>
+            <div class="carousel-slide"><img src="./images/GAVAE_4.png" alt="GAVAE 4"></div>
+            <div class="carousel-slide"><img src="./images/GAVAE_5.png" alt="GAVAE 5"></div>
+            <div class="carousel-slide"><img src="./images/GAVAE_6.png" alt="GAVAE 6"></div>
+            <div class="carousel-slide"><img src="./images/GAVAE_7.png" alt="GAVAE 7"></div>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-btn prev">‹</button>
+            <button class="carousel-btn next">›</button>
+          </div>
+          <div class="carousel-indicators"></div>
+        </div>
+      </div>
+
+      <div class="dimension-description" style="margin-top: 32px;">
+        GAVAE并非端到端世界模型，而是提供更具3D可读性的潜空间基座，与本数据集的四维度递进相配合，缩短"统一图像模型→世界模型"的距离。
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>© 2024 From Unified Image Model to World Model - Cong Wan</p>
+    </div>
+  </footer>
 
   <script>
-    // Full-width auto-play stage; minimal UI; white theme.
-    (function(){
-      const STAGES = Array.from(document.querySelectorAll('.stage'));
+    // Enhanced carousel without autoplay
+    document.querySelectorAll('[data-carousel]').forEach(carousel => {
+      const track = carousel.querySelector('.carousel-track');
+      const slides = carousel.querySelectorAll('.carousel-slide');
+      const prevBtn = carousel.querySelector('.prev');
+      const nextBtn = carousel.querySelector('.next');
+      const indicatorContainer = carousel.querySelector('.carousel-indicators');
+      
+      let currentIndex = 0;
 
-      STAGES.forEach(stage=>{
-        const track = stage.querySelector('.track');
-        const frames = Array.from(stage.querySelectorAll('.frame'));
-        const left = stage.querySelector('.ctrl.left');
-        const right = stage.querySelector('.ctrl.right');
-        const dotsWrap = stage.querySelector('.dots');
-        const interval = Number(stage.dataset.interval || 2200);
-        const autoplay = stage.hasAttribute('data-autoplay');
-
-        let idx = 0; let timer = null;
-
-        // Build dots
-        dotsWrap.innerHTML = '';
-        frames.forEach((_,i)=>{
-          const d = document.createElement('span');
-          d.className = 'dot' + (i===0?' active':'');
-          d.addEventListener('click', ()=>{ stop(); go(i); start(); });
-          dotsWrap.appendChild(d);
-        });
-
-        function update(){
-          const w = stage.clientWidth;
-          track.style.transform = 'translate3d(' + (-idx * w) + 'px,0,0)';
-          const dots = dotsWrap.querySelectorAll('.dot');
-          dots.forEach((dot,i)=>dot.classList.toggle('active', i===idx));
-        }
-        function go(i){
-          idx = (i + frames.length) % frames.length;
-          update();
-        }
-        function next(){ go(idx+1); }
-        function prev(){ go(idx-1); }
-
-        function start(){
-          if(!autoplay) return;
-          stop();
-          timer = setInterval(next, interval);
-        }
-        function stop(){
-          if(timer){ clearInterval(timer); timer = null; }
-        }
-
-        // Controls
-        left.addEventListener('click', ()=>{ stop(); prev(); start(); });
-        right.addEventListener('click', ()=>{ stop(); next(); start(); });
-
-        // Resize handling
-        window.addEventListener('resize', update, {passive:true});
-
-        // Pause on hover for desktop
-        stage.addEventListener('mouseenter', stop);
-        stage.addEventListener('mouseleave', start);
-
-        // Basic swipe
-        let sx=0, dx=0;
-        stage.addEventListener('touchstart', (e)=>{ sx = e.touches[0].clientX; stop(); }, {passive:true});
-        stage.addEventListener('touchmove', (e)=>{ dx = e.touches[0].clientX - sx; }, {passive:true});
-        stage.addEventListener('touchend', ()=>{
-          if(Math.abs(dx) > 40){ if(dx<0) next(); else prev(); }
-          dx = 0; start();
-        });
-
-        // Init
-        go(0);
-        start();
+      // Create indicators
+      slides.forEach((_, index) => {
+        const indicator = document.createElement('span');
+        indicator.className = 'indicator';
+        if (index === 0) indicator.classList.add('active');
+        indicator.addEventListener('click', () => goToSlide(index));
+        indicatorContainer.appendChild(indicator);
       });
-    })();
+
+      const indicators = indicatorContainer.querySelectorAll('.indicator');
+
+      function updateCarousel() {
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        
+        indicators.forEach((indicator, index) => {
+          indicator.classList.toggle('active', index === currentIndex);
+        });
+      }
+
+      function goToSlide(index) {
+        currentIndex = index;
+        updateCarousel();
+      }
+
+      function nextSlide() {
+        currentIndex = (currentIndex + 1) % slides.length;
+        updateCarousel();
+      }
+
+      function prevSlide() {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        updateCarousel();
+      }
+
+      prevBtn.addEventListener('click', prevSlide);
+      nextBtn.addEventListener('click', nextSlide);
+
+      // Touch support for mobile
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      carousel.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+
+      carousel.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        if (touchEndX < touchStartX - 50) nextSlide();
+        if (touchEndX > touchStartX + 50) prevSlide();
+      }
+
+      // Keyboard navigation
+      carousel.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft') prevSlide();
+        if (e.key === 'ArrowRight') nextSlide();
+      });
+    });
   </script>
 </body>
 </html>
