@@ -164,6 +164,83 @@
       font-weight: 600;
     }
 
+    /* Subsection Divider */
+    .subsection-divider {
+      margin: 48px 0;
+      padding: 32px 0;
+      border-top: 2px solid var(--border-light);
+      position: relative;
+    }
+
+    .subsection-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .subsection-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* Model Training Card */
+    .model-training-card {
+      background: linear-gradient(135deg, var(--accent-bg) 0%, rgba(255, 255, 255, 0.9) 100%);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .model-training-content {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    .model-training-content strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Single Image Display */
+    .single-image-container {
+      background: white;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+      margin: 32px 0;
+    }
+
+    .single-image-wrapper {
+      position: relative;
+      width: 100%;
+      padding: 20px;
+      background: var(--bg-gray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .single-image-wrapper img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius-sm);
+      display: block;
+    }
+
     /* Carousel Container */
     .carousel-container {
       background: white;
@@ -427,6 +504,15 @@
         height: 32px;
         font-size: 12px;
       }
+
+      .subsection-title {
+        font-size: 20px;
+      }
+
+      .subsection-divider {
+        margin: 32px 0;
+        padding: 24px 0;
+      }
     }
   </style>
 </head>
@@ -621,6 +707,32 @@
 
       <div class="section-content" style="margin-top: 32px;">
         <strong>目标：</strong>以可扩展流程将多域样本自动组织到四个层级维度，形成递进的空间能力土壤，服务"从统一图像模型到世界模型"的路线。
+      </div>
+
+      <!-- New Subsection: End-to-End Model Training -->
+      <div class="subsection-divider">
+        <h3 class="subsection-title">
+          端到端数据生产模型
+          <span class="subsection-badge">Experimental</span>
+        </h3>
+        
+        <div class="model-training-card">
+          <div class="model-training-content">
+            <strong>动机：</strong>
+            在数据构建过程中，我们发现几乎每个数据集都需要专门设计的长篇 prompt，并且经常需要结合 camera、actions 等复杂标注信息，整个流程极其繁琐。
+            为了提升效率和可扩展性，我们探索训练一个端到端的模型，直接从源视频数据完成到最终结构化数据的自动生产。
+          </div>
+        </div>
+
+        <div class="single-image-container">
+          <div class="single-image-wrapper">
+            <img src="./images_webp/demoaginot_02.webp" alt="End-to-end data production model">
+          </div>
+        </div>
+
+        <div class="dimension-description">
+          该模型旨在学习从原始视频到结构化训练数据的映射关系，自动处理复杂的标注整合与格式转换，减少人工干预，加速大规模数据集的构建进程。
+        </div>
       </div>
     </div>
   </section>
