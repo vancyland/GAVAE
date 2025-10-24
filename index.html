@@ -735,116 +735,121 @@
         </div>
       </div>
 
-<!-- Subsection: 动态展示 — 基于规则的自监督视角变化实验 -->
+
+<!-- Subsection: 动态展示 — 原始模型输出对齐展示 -->
 <div class="subsection-divider">
   <h3 class="subsection-title">
-    Rule-based Self-supervised Triplet Case
-    <span class="subsection-badge">Dynamic Visualization</span>
+    Rule-based Self-supervised Triplet Experiment
+    <span class="subsection-badge">Model Raw Outputs</span>
   </h3>
 
   <div class="carousel-container">
-    <div class="carousel" data-carousel id="triplet-carousel" data-autoplay="true">
-      <button class="autoplay-control">⏸</button>
+    <div class="carousel" data-carousel id="triplet-raw-carousel" data-autoplay="false">
       <div class="carousel-track">
-        
+
         <!-- Slide 1: 实验图 -->
         <div class="carousel-slide">
           <div style="display:flex;flex-direction:column;align-items:center;">
-            <h4 style="margin-bottom:16px;font-weight:700;color:var(--text-primary);">几何一致性裁剪 —— 自监督数据样本示意</h4>
-            <img src="./images_webp/tripple.webp" alt="Triplet croppping explanation" style="max-width:90%;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.1);">
+            <h4 style="margin-bottom:16px;font-weight:700;color:var(--text-primary);">
+              几何一致性裁剪规则示意
+            </h4>
+            <img src="./images_webp/tripple.webp" alt="Triplet geometry example" 
+                 style="max-width:90%;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.1);">
             <p style="max-width:860px;color:var(--text-secondary);font-size:15px;line-height:1.7;margin-top:20px;">
-              从相邻帧 f₁ 与 f₂ 中，对齐真实相机运动方向构造 (A,A′) 为<strong>真实运动对</strong>，
-              反向区域 (B) 为<strong>伪变化对</strong>。  
-              这一规则裁剪在无外部标注下即可生成几何一致性样本，并显著揭示 VLM 模型在3D理解上的偏差。
+              (A, A′) 为真实相机运动对；(A, B) 为无运动的伪变化对。  
+              三个模型的输出如下页展示。
             </p>
           </div>
         </div>
 
-        <!-- Slide 2: Qwen3-VL-32B -->
+        <!-- Qwen3-VL-32B -->
         <div class="carousel-slide">
-          <div style="display:flex;flex-direction:column;gap:16px;max-width:900px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <img src="./images_webp/tripple.webp" alt="Input triplet small" style="width:180px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
-              <h4 style="font-size:20px;font-weight:700;color:var(--primary);margin:0;">Qwen3‑VL‑32B 输出</h4>
-            </div>
-            <div style="background:white;border-radius:8px;border:1px solid var(--border);padding:16px;line-height:1.8;color:var(--text-secondary);font-size:15px;">
-              <strong>模型原始回答(节选)：</strong><br>
-              “A图中高脚凳靠近中心，而B图更靠右，因此相机向左前方走，视线向左转约15°；
-              C图比B更往左，相机向左前方走约0.4m，视线向左转约20°。”
-              <br><br>
-              <strong style="color:#dc2626;">错误解析：</strong><br>
-              ⚠️ 模型<strong>误把画面平面上物体位置差异</strong>当作镜头运动，
-              忽略了A与B源自<strong>同一帧裁剪</strong>的事实。
-              <br>
-              这暴露出VLM常用的“<strong>平面投影启发式</strong>”推理：以物体相对位移替代3D几何理解。
+          <div style="display:flex;flex-direction:row;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <img src="./images_webp/tripple.webp" alt="Input triplet small" 
+                 style="width:180px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+            <div style="flex:1;min-width:280px;">
+              <h4 style="font-size:20px;font-weight:700;color:#2563eb;margin-top:0;">Qwen3‑VL‑32B 原始输出</h4>
+              <pre style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;
+                     white-space:pre-wrap;overflow-wrap:break-word;line-height:1.8;font-size:15px;color:#374151;">
+相机运动分析：
+- 从A到B：<span style="text-decoration:underline;color:#dc2626;">相机视线向左旋转约15° ❌</span>，镜头略向左平移，吧台位置相对居中。
+- 从B到C：<span style="text-decoration:underline;color:#dc2626;">相机继续左转约20° ❌</span>，视角更加偏向左侧。
+- 综合判断：相机总共转动约35°，场景变化符合右下方至左上方移动趋势。
+
+备注：根据物体在画面中的位置变化（如高脚凳、地面花纹），推测相机位置有明显变化。</pre>
             </div>
           </div>
         </div>
 
-        <!-- Slide 3: Qwen3-VL-235B -->
+        <!-- Qwen3-VL-235B -->
         <div class="carousel-slide">
-          <div style="display:flex;flex-direction:column;gap:16px;max-width:900px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <img src="./images_webp/tripple.webp" style="width:180px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);" alt="Input triplet">
-              <h4 style="font-size:20px;font-weight:700;color:var(--primary-dark);margin:0;">Qwen3‑VL‑235B 输出</h4>
-            </div>
-            <div style="background:white;border:1px solid var(--border);border-radius:8px;padding:16px;line-height:1.8;color:var(--text-secondary);font-size:15px;">
-              <strong>模型原始回答(节选)：</strong><br>
-              “A 相对于 B：相机向左前方走约 0.5 m，视线向左转 18°。  
-              C 相对于 B：相机向右前方走约 0.4 m，视线向右转 15°。”
-              <br><br>
-              <strong style="color:#dc2626;">错误解析：</strong><br>
-              ❌ 该结果语义上完美，但<strong>物理上错误</strong>：  
-              A、B 同源帧无视角变化，不可能存在旋转。  
-              模型倾向于“生成听起来合理”的三维描述，而非基于真实几何一致性。
+          <div style="display:flex;flex-direction:row;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <img src="./images_webp/tripple.webp" alt="Input triplet small" 
+                 style="width:180px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+            <div style="flex:1;min-width:280px;">
+              <h4 style="font-size:20px;font-weight:700;color:#3b82f6;margin-top:0;">Qwen3‑VL‑235B 原始输出</h4>
+              <pre style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;
+                     white-space:pre-wrap;overflow-wrap:break-word;line-height:1.8;font-size:15px;color:#374151;">
+分析结果：
+(1) A → B：
+    <span style="text-decoration:underline;color:#dc2626;">相机向左前方移动约0.5米 ❌</span>，
+    <span style="text-decoration:underline;color:#dc2626;">视线左转约18° ❌</span>，
+    周围环境的相对位移与透视差支撑这一判断。
+(2) B → C：
+    <span style="text-decoration:underline;color:#dc2626;">相机向右前方移动约0.4米 ❌</span>，
+    <span style="text-decoration:underline;color:#dc2626;">右转约15° ❌</span>，
+    吧台与地砖透视一致。
+(3) 综合结论：
+    相机围绕中心点小范围平移与转动，总旋角约30～35°。
+
+说明：以上估算基于画面透视变化与空间投影关系。</pre>
             </div>
           </div>
         </div>
 
-        <!-- Slide 4: Gemini 2.5 Pro -->
+        <!-- Gemini 2.5 Pro -->
         <div class="carousel-slide">
-          <div style="display:flex;flex-direction:column;gap:16px;max-width:900px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <img src="./images_webp/tripple.webp" style="width:180px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);" alt="Input triplet">
-              <h4 style="font-size:20px;font-weight:700;color:#7c3aed;margin:0;">Gemini 2.5 Pro 输出</h4>
-            </div>
-            <div style="background:white;border:1px solid var(--border);border-radius:8px;padding:16px;line-height:1.8;color:var(--text-secondary);font-size:15px;">
-              <strong>模型原始回答(节选)：</strong><br>
-              “B→A：相机向左平移约 0.5 m，旋转 15°；  
-              B→C：相机向左前方向 1.2 m 移动，旋转 35°。”  
-              <br><br>
-              <strong style="color:#dc2626;">错误解析：</strong><br>
-              🚩 Gemini 输出数值夸张，以透视和尺寸变化推断“近大远小” ⇒ “相机前进”，
-              <strong>将平面几何误判为运动透视</strong>。  
-              说明其空间归纳缺乏显式3D约束。
+          <div style="display:flex;flex-direction:row;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <img src="./images_webp/tripple.webp" alt="Input triplet small" 
+                 style="width:180px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+            <div style="flex:1;min-width:280px;">
+              <h4 style="font-size:20px;font-weight:700;color:#7c3aed;margin-top:0;">Gemini 2.5 Pro 原始输出</h4>
+              <pre style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;
+                     white-space:pre-wrap;overflow-wrap:break-word;line-height:1.8;font-size:15px;color:#374151;">
+推理描述：
+B → A：
+    <span style="text-decoration:underline;color:#dc2626;">相机向左平移约0.5米 ❌</span>，
+    <span style="text-decoration:underline;color:#dc2626;">旋转约15度 ❌</span>，
+    画面右侧吧台更加居中。
+B → C：
+    <span style="text-decoration:underline;color:#dc2626;">相机向左前方移动约1.2米 ❌</span>，
+    <span style="text-decoration:underline;color:#dc2626;">旋转约35度 ❌</span>，
+    画面左侧物体放大，透视更明显。
+总体估计：
+    场景呈连续左旋前移趋势。
+
+推理依据：根据物体尺寸变化与透视缩放，判断相机距被摄体更近。</pre>
             </div>
           </div>
         </div>
 
       </div>
 
+      <!-- 控制按钮 -->
       <div class="carousel-controls">
-        <button class="carousel-btn prev">‹</button>
-        <button class="carousel-btn next">›</button>
+        <button class="carousel-btn prev" aria-label="Previous">‹</button>
+        <button class="carousel-btn next" aria-label="Next">›</button>
       </div>
 
+      <!-- 指示器 -->
       <div class="carousel-indicators"></div>
-      <div class="autoplay-progress">
-        <div class="autoplay-progress-bar"></div>
-      </div>
     </div>
   </div>
-
-  <div class="dimension-description">
-    <strong>观察结论：</strong><br>
-    所有模型在此实验中均依赖<strong>2D视觉启发</strong>而产生错误推理；
-    这揭示了现阶段VLM在几何一致性方面的先天缺陷。  
-    <br><br>
-    我们提出的<strong>基于规则的自监督裁剪构建方式</strong>，
-    能在无需VLM参与的情况下生成可扩展、高质量的几何监督样本，
-    并作为评测基准揭示模型的3D认知上限。
-  </div>
 </div>
+
+
+
+      
 
       
     </div>
