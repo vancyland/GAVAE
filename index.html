@@ -712,7 +712,7 @@
       <!-- New Subsection: End-to-End Model Training -->
       <div class="subsection-divider">
         <h3 class="subsection-title">
-          Learn From the World: 端到端数据生产模型
+          Learn From the World: 数据生产飞轮
           <span class="subsection-badge">Experimental</span>
         </h3>
         
@@ -720,7 +720,7 @@
           <div class="model-training-content">
             <strong>动机：</strong>
             在数据构建过程中，我们发现几乎每个数据集都需要专门设计的长篇 prompt，并且经常需要结合 camera、actions 等复杂标注信息，整个流程极其繁琐。
-            为了提升效率和可扩展性，我们探索利用前面标注好的数据集，训练一个端到端的模型，直接从源视频数据完成到最终结构化数据的自动生产。
+            为了提升效率和可扩展性，我们探索利用前面标注好的数据集，训练一个Agent模型，直接从源视频数据完成到最终结构化数据的自动生产。
           </div>
         </div>
 
@@ -731,9 +731,102 @@
         </div>
 
         <div class="dimension-description">
-          该模型旨在学习从原始视频到结构化训练数据的映射关系，自动处理复杂的标注整合与格式转换，减少人工干预，加速大规模数据集的构建进程。
+          旨在学习从原始视频到结构化训练数据的映射关系，自动处理复杂的标注整合与格式转换，减少人工干预，加速大规模数据集的构建进程。
         </div>
       </div>
+
+     <!-- 新增 Subsection: 自监督几何裁剪数据构建 -->
+<div class="subsection-divider">
+  <h3 class="subsection-title">
+    Rule-based Self-supervised Data: 几何一致性裁剪
+    <span class="subsection-badge">Key Case Study</span>
+  </h3>
+
+  <div class="single-image-container">
+    <div class="single-image-wrapper">
+      <img src="./images_webp/tripple.webp" alt="Triplet self-supervised geometric cropping illustration">
+    </div>
+  </div>
+
+  <div class="dimension-description">
+    为了从相邻帧中构造具有真实几何变化的训练样本，我们不再依赖随机取区，而是
+    <strong>根据相机真实旋转方向执行有目标裁剪</strong>，形成具备几何一致性的三元组样本。
+  </div>
+
+  <div class="model-training-card">
+    <div class="model-training-content">
+      <strong>流程简述：</strong><br>
+      • 从视频序列中提取相邻帧 f₁ 与 f₂ ，记录相机位姿差。<br>
+      • 在 f₁ 中沿相机运动方向（如右下）裁剪得到区域 A；在 f₂ 中裁剪对应的 A′ 区域，构成真实运动对 <strong>(A, A′)</strong>。<br>
+      • 在 f₁ 中从相反方向（如左上）裁剪 B ，形成无运动对 <strong>(A, B)</strong>。<br>
+      <br>
+      <strong>语义含义：</strong><br>
+      (A, A′) 表示真实相机旋转下的视角变化，<br>
+      (A, B) 则是纯裁剪导致的伪变化。<br>
+      这种基于物理几何一致性的“对角不对称裁剪”，有效诱导模型学习视点差异，而非单纯的像素平移。
+    </div>
+  </div>
+
+  <div class="dimension-description">
+    该方法完全基于规则、无需VLM参与即可大规模构造可靠的几何监督信号；
+    ground truth 相机运动向量可从相机位姿直接计算，既精确、又可扩展。
+  </div>
+
+  <div class="model-training-card">
+    <div class="model-training-content">
+      <strong>验证实验：</strong><br>
+      我们使用此类样本考察了多个 VLM 模型（如 <strong>Qwen3-VL-32B</strong>、<strong>Qwen3-VL-235B</strong>、<strong>Gemini 2.5 Pro</strong>）。
+      它们被要求描述 A、C 相对于 B 的相机运动（方向 + 角度），答案如下：
+      <div class="feature-list" style="margin-top: 16px;">
+        <div class="feature-item">
+          <div class="feature-icon">🧠</div>
+          <div class="feature-content">
+            <div class="feature-title">Qwen3-VL-32B</div>
+            <div class="feature-desc">
+              ✅ 识别出大致方向，但 <strong style="color:#dc2626;">错误地认为 A、B 之间存在相机视线旋转</strong>；
+              它依据画面中物体的平面位置（如吧台、瓷砖）变化，错误推断了空间转动。
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">🔍</div>
+          <div class="feature-content">
+            <div class="feature-title">Qwen3-VL-235B</div>
+            <div class="feature-desc">
+              ❌ 提出相机“向左前方走约0.5m，视线向左转动约18°”的结论，
+              <strong style="color:#dc2626;">但A与B源自同一帧裁剪，本不存在旋转</strong>。
+              说明模型<strong>误将平面构图差异理解为视点变化</strong>。
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-content">
+            <div class="feature-title">Gemini 2.5 Pro</div>
+            <div class="feature-desc">
+              ⚠️ 分析更详尽，但仍<strong style="color:#dc2626;">混淆了局部物体透视变化与真实相机运动</strong>。
+              它同样假设存在1 m+平移与35°旋转，这是典型的2D推理误导。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dimension-description">
+    <strong>结论：</strong><br>
+    这些模型均犯了相似错误——
+    它们依赖图像平面内的视觉差异（如物体相对位置或瓷砖透视）来推断3D运动，
+    而忽略了实际几何约束。<br><br>
+    我们的<strong>基于裁剪的自监督构建策略</strong>不仅可快速scale-up，
+    更是能系统性揭示VLM几何理解的盲点 —— 
+    说明单纯在2D语义上学习的模型难以获得真实的空间一致性。
+  </div>
+</div>
+
+      
     </div>
   </section>
 
